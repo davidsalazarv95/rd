@@ -1,0 +1,87 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Reading Data. 
+
+```{r}
+library(tidyverse)
+library(haven)
+library(rdrobust)
+```
+
+```{r}
+data <- read_dta("/Users/david_salazarv/Google Drive/Septimo:Octavo/Econometria/Taller 4/punto3.dta")
+forcing <- data$distancia_frontera
+y <- data$precio_vivienda
+rdplot(x = forcing, y = data$D, scale = 100, binselect = "es")
+```
+
+```{r}
+rdplot(x = forcing, y = data$metros_cuadrados, 
+       title = "Metros Cuadrados", 
+       x.label = "Distancia a Frontera",
+       y.label = "Metros Cuadrados")
+```
+
+```{r}
+y = data$antiguedad_edificio
+rdplot(x = forcing, y = y, 
+       title = "Antigüedad Edificio",
+       x.label = "Distancia a Frontera",
+       y.label = "Antigüedad Edificio")
+```
+
+```{r}
+y = data$ingresos_hogar_jefe
+rdplot(x = forcing, y = y,
+       title = "Ingresos jefe de hogar", 
+       x.label = "Distancia a Frontera",
+       y.label = "Ingresos jefe de hogar")
+```
+
+```{r}
+y = data$numero_cuartos
+rdplot(x = forcing, y = y, 
+       title = "Número Cuartos",
+       x.label = "Distancia a Fronter", 
+       y.label = "Número Cuartos")
+```
+
+
+```{r}
+Lee2008_rdd <- RDDdata(x = forcing, y = data$precio_vivienda, cutpoint = 0)
+library(broom)
+dens_test(Lee2008_rdd)
+```
+
+```{r}
+s <- tidy(dens_test(Lee2008_rdd))
+matrix <- matrix(nrow = 1, ncol = 2)
+```
+
+```{r}
+rdrobust(x = forcing, y = data$precio_vivienda, h = 1, all = T)
+```
+
+```{r}
+rdrobust(x = forcing, y = data$precio_vivienda, h = 0.5, all = T)
+```
+
+```{r}
+rdrobust(x = forcing, y = data$precio_vivienda, h = 0.2, all = T)
+```
+
+```{r}
+reg_para <- RDDreg_lm(RDDobject = Lee2008_rdd, order = 1)
+s <- tidy(reg_para)
+matrix <- matrix(s[2, c(2,3,5)],nrow = 1, ncol = 3)
+s
+```
+
+```{r}
+D <- data$D
+rdrobust(x = forcing, y = data$precio_vivienda, fuzzy = D, all = T)
+```
+
